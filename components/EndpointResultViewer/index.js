@@ -1,6 +1,10 @@
 import SyntaxHighlighter from 'react-syntax-highlighter';
+import {useGet} from "../../useRequest";
 
-const EndpointResultViewer = ({quote}) => {
+const EndpointResultViewer = ({path}) => {
+    const {data, error } = useGet(path)
+    if (error) return <h2>Oops something went wrong.</h2>;
+    if (!data) return <h2>Loading</h2>
     return (
         <div
             className="transition-all duration-150 flex max-w-md px-2 py-6 md:w-1/2 lg:w-1/3"
@@ -10,16 +14,16 @@ const EndpointResultViewer = ({quote}) => {
             >
                 <div className="border-b border-gray-200 bg-white px-6 py-4">
                     <div className="font-bold uppercase">
-                        GET / quotes
+                        {path}
                     </div>
-                    <div className="text-gray-500 text-sm mt-1">Last update at 14:00:00</div>
+                    <div className="text-gray-500 text-sm mt-1">Last update at {data[1]}</div>
                 </div>
 
                 <div
                     className="p-6 bg-white border-b border-gray-200 break-words"
                 >
                     <SyntaxHighlighter language="json" >
-                        {JSON.stringify(quote, undefined, 2)}
+                        {JSON.stringify(data[0], undefined, 2)}
                     </SyntaxHighlighter>
                 </div>
                 <div className="p-6 bg-white border-gray-200 text-right">

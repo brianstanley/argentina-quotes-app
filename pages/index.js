@@ -28,9 +28,6 @@ export default function Home() {
                     </div>
                 </div>
             </div>
-            <section className="flex flex-row flex-wrap mx-auto">
-                <EndpointResultViewer />
-            </section>
         </div>
     )
 }

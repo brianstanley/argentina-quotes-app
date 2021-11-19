@@ -1,7 +1,18 @@
 import useSWR from "swr"
 
-const fetcher = url => fetch(url).then(res => res.json())
-const baseUrl = "http://localhost:3000/api"
+const getLastSyncTime = () => {
+    let currentDate = new Date();
+    return `${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}`
+}
+
+const fetcher = async (url) => {
+    const res = await fetch(url)
+    const data = await res.json();
+
+    return [data, getLastSyncTime()]
+}
+
+const baseUrl = "http://localhost:3000/api";
 
 export const useGet = path => {
     if (!path) {
@@ -9,8 +20,6 @@ export const useGet = path => {
     }
 
     const url = `${baseUrl}${path}`
-
-    const { data: quotes, error } = useSWR(url, fetcher)
-
-    return { quotes, error }
+    const { data, error } = useSWR(url, fetcher, { refreshInterval: 15000 });
+    return { data, error }
 }
