@@ -1,5 +1,3 @@
-import EndpointResultViewer from "../components/EndpointResultViewer";
-
 export default function Home() {
     return (
         <div>

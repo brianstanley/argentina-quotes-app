@@ -20,9 +20,9 @@ const EndpointResultViewer = ({path}) => {
                 </div>
 
                 <div
-                    className="p-6 bg-white border-b border-gray-200 break-words"
+                    className="p-6 bg-white border-b border-gray-200 h-3/4 break-words"
                 >
-                    <SyntaxHighlighter language="json" >
+                    <SyntaxHighlighter className="min-h-full max-h-full" language="json" >
                         {JSON.stringify(data[0], undefined, 2)}
                     </SyntaxHighlighter>
                 </div>
