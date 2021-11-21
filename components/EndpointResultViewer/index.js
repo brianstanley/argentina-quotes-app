@@ -7,10 +7,10 @@ const EndpointResultViewer = ({path}) => {
     if (!data) return <h2>Loading</h2>
     return (
         <div
-            className="transition-all duration-150 flex max-w-md px-2 py-6 md:w-1/2 lg:w-1/3"
+            className="transition-all duration-150 flex max-w-md min-w-full px-2 py-6 sm:w-full lg:w-1/3"
         >
             <div
-                className="flex min-w-full  flex-col items-stretch  pb-4 mb-6 transition-all duration-150 bg-white rounded-lg shadow-lg hover:shadow-2xl"
+                className="flex min-w-full flex-col items-stretch  pb-4 mb-6 transition-all duration-150 bg-white rounded-lg shadow-lg hover:shadow-2xl"
             >
                 <div className="border-b border-gray-200 bg-white px-6 py-4">
                     <div className="font-bold uppercase">
