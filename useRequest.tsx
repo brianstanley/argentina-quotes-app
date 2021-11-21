@@ -1,8 +1,10 @@
 import useSWR from "swr"
 
 const getLastSyncTime = () => {
-    let currentDate = new Date();
-    return `${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}`
+    const currentDate = new Date();
+    const minutes = `0${currentDate.getMinutes()}`;
+    const seconds = `0${currentDate.getSeconds()}`;
+    return `${currentDate.getHours()}:${minutes.slice(-2)}:${seconds.slice(-2)}`
 }
 
 const fetcher = async (url) => {
