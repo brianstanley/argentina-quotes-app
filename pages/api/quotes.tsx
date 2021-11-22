@@ -9,20 +9,12 @@ interface IResultError {
     error: string
 }
 
-let chrome = {};
-let puppeteer;
 const chromium = require('chrome-aws-lambda');
-//
-// if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
-//     // running on the Vercel platform.
-//     chrome = require('chrome-aws-lambda');
-//     puppeteer = require('puppeteer-core');
-// } else {
-//     // running locally.
-//     puppeteer = require('puppeteer');
-// }
+
 
 handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
+    res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate');
+
     let results: Results = {
         [Provider.DOLAR_HOY]: {buy_price: 0, sell_price: 0},
         [Provider.CRONISTA]: {buy_price: 0, sell_price: 0},
