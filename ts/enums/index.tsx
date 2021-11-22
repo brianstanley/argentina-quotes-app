@@ -1,5 +1,5 @@
 export enum Provider {
-    CRONISTA,
-    AMBITO,
-    DOLAR_HOY,
+    CRONISTA='CRONISTA',
+    AMBITO='AMBITO',
+    DOLAR_HOY='DOLAR_HOY',
 }

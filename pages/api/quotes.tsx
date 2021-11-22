@@ -8,7 +8,7 @@ const handler = nc<NextApiRequest, NextApiResponse>();
 const chromium = require('chrome-aws-lambda');
 
 handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
-    res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate');
+    res.setHeader('Cache-Control', process.env.CACHE_CONTROL);
 
     let results: Results = {
         [Provider.DOLAR_HOY]: {buy_price: 0, sell_price: 0},
@@ -24,22 +24,12 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
         ignoreHTTPSErrors: true,
     });
 
-    try {
-        results[Provider.DOLAR_HOY] = await fetchRates(Provider.DOLAR_HOY, browser);
-    } catch (e) {
-        results[Provider.DOLAR_HOY] = {provider: Provider.DOLAR_HOY, error: e.error}
-    }
-
-    try {
-        results[Provider.AMBITO] = await fetchRates(Provider.AMBITO, browser);
-    } catch (e) {
-        results[Provider.AMBITO] = {provider: Provider.AMBITO, error: e.error}
-    }
-
-    try {
-        results[Provider.CRONISTA] = await fetchRates(Provider.CRONISTA, browser);
-    } catch (e) {
-        results[Provider.CRONISTA] = {provider: Provider.AMBITO, error: e.error}
+    for (const providerKey of Object.keys(results)) {
+        try {
+            results[providerKey] = await fetchRates(providerKey as Provider, browser);
+        } catch (e) {
+            results[providerKey] = {provider: providerKey, error: e.error}
+        }
     }
 
     await browser.close();
