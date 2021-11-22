@@ -9,7 +9,18 @@ const chromium = require('chrome-aws-lambda');
 
 handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
     res.setHeader('Cache-Control', process.env.CACHE_CONTROL);
+    const results: Results = await getQuotes();
+    const responseData = Object.keys(ProviderConfig).map((key) => {
+        return {
+            ...results[key],
+            source:  ProviderConfig[key].url
+        }
+    })
 
+    res.json(responseData);
+})
+
+export async function getQuotes() {
     let results: Results = {
         [Provider.DOLAR_HOY]: {buy_price: 0, sell_price: 0},
         [Provider.CRONISTA]: {buy_price: 0, sell_price: 0},
@@ -26,22 +37,15 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
 
     for (const providerKey of Object.keys(results)) {
         try {
-            results[providerKey] = await fetchRates(providerKey as Provider, browser);
+            const config = ProviderConfig[providerKey];
+            results[providerKey] = await scrapProvider(config, browser);
         } catch (e) {
             results[providerKey] = {error: true, source: Provider[providerKey].url}
         }
     }
-
-    const responseData = Object.keys(ProviderConfig).map((key) => {
-        return {
-            ...results[key],
-            source:  ProviderConfig[key].url
-        }
-    })
-
     await browser.close();
-    res.json(responseData);
-})
+    return results;
+}
 
 const ProviderConfig: ProviderConfig = {
     [Provider.AMBITO]: {
@@ -88,11 +92,6 @@ async function scrapProvider(config, browser: Browser) {
             }
         },{config});
     })(config, browser)
-}
-
-async function fetchRates(provider: Provider, browser): Promise<IQuotes> {
-    const config = ProviderConfig[provider];
-    return await scrapProvider(config, browser);
 }
 
 export default handler;
