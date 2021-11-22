@@ -28,7 +28,7 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
         try {
             results[providerKey] = await fetchRates(providerKey as Provider, browser);
         } catch (e) {
-            results[providerKey] = {provider: providerKey, error: e.error}
+            results[providerKey] = {error: true, source: Provider[providerKey].url}
         }
     }
 
@@ -79,10 +79,12 @@ async function scrapProvider(config, browser: Browser) {
         await page.setRequestInterception(true)
 
         return await page.evaluate(({config, lastSync}) => {
+            const buyPriceNode = document.querySelector(config.buy_selector);
+            const sellPriceNode = document.querySelector(config.sell_selector);
             return {
                 last_sync: lastSync,
-                buy_price: parseFloat(document.querySelector(config.buy_selector).textContent.replace(",", ".").replace(/^(-)|[^0-9.,]+/g, '$1')),
-                sell_price: parseFloat(document.querySelector(config.sell_selector).textContent.replace(",", ".").replace(/^(-)|[^0-9.,]+/g, '$1'))
+                buy_price: parseFloat(buyPriceNode.textContent.replace(",", ".").replace(/^(-)|[^0-9.,]+/g, '$1')),
+                sell_price: parseFloat(sellPriceNode.textContent.replace(",", ".").replace(/^(-)|[^0-9.,]+/g, '$1'))
             }
         },{config});
     })(config, browser)
