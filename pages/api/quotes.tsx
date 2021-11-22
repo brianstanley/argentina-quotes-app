@@ -9,15 +9,18 @@ interface IResultError {
     error: string
 }
 
+let chrome = {};
 let puppeteer;
-
-if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
-    // running on the Vercel platform.
-    puppeteer = require('puppeteer-core');
-} else {
-    // running locally.
-    puppeteer = require('puppeteer');
-}
+const chromium = require('chrome-aws-lambda');
+//
+// if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
+//     // running on the Vercel platform.
+//     chrome = require('chrome-aws-lambda');
+//     puppeteer = require('puppeteer-core');
+// } else {
+//     // running locally.
+//     puppeteer = require('puppeteer');
+// }
 
 handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
     let results: Results = {
@@ -25,21 +28,14 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
         [Provider.CRONISTA]: {buy_price: 0, sell_price: 0},
         [Provider.AMBITO]: {buy_price: 0, sell_price: 0}
     };
-    let browser;
-    if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
-        let chrome = require('chrome-aws-lambda');
-        browser = await puppeteer.launch(
-            {
-                args: [...chrome.args, '--hide-scrollbars', '--disable-web-security'],
-                defaultViewport: chrome.defaultViewport,
-                executablePath: await chrome.executablePath,
-                headless: true,
-                ignoreHTTPSErrors: true,
-            }
-        );
-    } else {
-        browser = await puppeteer.launch();
-    }
+
+    const browser: Browser = await chromium.puppeteer.launch({
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath,
+        headless: true,
+        ignoreHTTPSErrors: true,
+    });
 
     try {
         results[Provider.DOLAR_HOY] = await fetchRates(Provider.DOLAR_HOY, browser);
