@@ -1,12 +1,24 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import nc from "next-connect";
 import {Browser} from "puppeteer";
-const puppeteer = require('puppeteer');
+// const puppeteer = require('puppeteer');
 const handler = nc<NextApiRequest, NextApiResponse>();
 
 interface IResultError {
     provider: Provider,
     error: string
+}
+
+let chrome = {};
+let puppeteer;
+
+if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
+    // running on the Vercel platform.
+    chrome = require('chrome-aws-lambda');
+    puppeteer = require('puppeteer-core');
+} else {
+    // running locally.
+    puppeteer = require('puppeteer');
 }
 
 handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
