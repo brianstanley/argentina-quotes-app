@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import nc from "next-connect";
-const cheerio = require('cheerio');
+import {Browser} from "puppeteer";
 const puppeteer = require('puppeteer');
 const handler = nc<NextApiRequest, NextApiResponse>();
 
@@ -9,30 +9,28 @@ interface IResultError {
     error: string
 }
 
-type IResults = {
-    [key in Provider]: IQuotes | IResultError;
-};
-
 handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
-    let results: IResults = {
+    let results: Results = {
         [Provider.DOLAR_HOY]: {buy_price: 0, sell_price: 0},
         [Provider.CRONISTA]: {buy_price: 0, sell_price: 0},
         [Provider.AMBITO]: {buy_price: 0, sell_price: 0}
     };
+    const browser: Browser = await puppeteer.launch();
 
     try {
-        results[Provider.DOLAR_HOY] = await fetchRates(Provider.DOLAR_HOY);
+        results[Provider.DOLAR_HOY] = await fetchRates(Provider.DOLAR_HOY, browser);
     } catch (e) {
         console.log('error ', e)
         results[Provider.DOLAR_HOY] = {provider: Provider.DOLAR_HOY, error: e.error}
     }
 
     try {
-        results[Provider.AMBITO] = await fetchRates(Provider.AMBITO);
+        results[Provider.AMBITO] = await fetchRates(Provider.AMBITO, browser);
     } catch (e) {
         console.log('entra por el error', e)
         results[Provider.AMBITO] = {provider: Provider.AMBITO, error: e.error}
     }
+    await browser.close();
 
     const responseData = [
         {
@@ -58,26 +56,10 @@ enum Provider {
     DOLAR_HOY = 'https://dolarhoy.com/',
 }
 
-
-const ProviderConfig = {
-    [Provider.AMBITO]: {
-        url: 'https://www.ambito.com/contenidos/dolar.html',
-        buy_selector: "div[data-indice='/dolar/informal'] > .align-items-end > .first > .value",
-        sell_selector: '/dolar/informal'
-    },
-    [Provider.DOLAR_HOY]: {
-        url: "https://dolarhoy.com/",
-        buy_selector: '.tile .is-parent .is-5 > .tile > .values > .compra > .val ',
-        sell_selector: '.tile .is-parent .is-5 > .tile > .values > .venta > .val ',
-        // parent_selector: '.tile .is-parent .is-5 ',
-        value_container: {
-            sell: '.compra > .val',
-            buy: '.venta > .val'
-        }
-    },
-    [Provider.CRONISTA]: {
-        url: "https://www.cronista.com/MercadosOnline/moneda.html?id=ARSB"
-    }
+interface IProvider {
+    url: string,
+    buy_selector: string,
+    sell_selector: string,
 }
 
 interface IQuotes {
@@ -85,39 +67,56 @@ interface IQuotes {
     sell_price: number
 }
 
-async function fetchHtml(url: string) {
-    const response = await fetch(url);
-    const htmlString = await response.text();
-    return cheerio.load(htmlString);
+type Results = {
+    [key in Provider]: IQuotes | IResultError;
+};
+
+type ProviderConfig = {
+    [key in Provider]: IProvider;
 }
 
-async function fetchRates(provider: Provider): Promise<IQuotes> {
+const ProviderConfig: ProviderConfig = {
+    [Provider.AMBITO]: {
+        url: 'https://www.ambito.com/contenidos/dolar.html',
+        buy_selector: "div[data-indice='/dolar/informal'] > .align-items-end > .first > .value",
+        sell_selector: "div[data-indice='/dolar/informal'] > .align-items-end > .second > .value"
+    },
+    [Provider.DOLAR_HOY]: {
+        url: "https://dolarhoy.com/",
+        buy_selector: '.tile .is-parent .is-5 > .tile > .values > .compra > .val ',
+        sell_selector: '.tile .is-parent .is-5 > .tile > .values > .venta > .val ',
+    },
+    [Provider.CRONISTA]: {
+        url: "https://www.cronista.com/MercadosOnline/moneda.html?id=ARSB",
+        buy_selector: "",
+        sell_selector: ""
+    }
+}
+
+async function scrapProvider(config, browser: Browser) {
+    return await (async (config, browser: Browser) => {
+        const page = await browser.newPage();
+        await page.goto(config.url);
+        return await page.evaluate(({config}) => {
+            return {
+                buy_price: parseFloat(document.querySelector(config.buy_selector).textContent.replace(",", ".").replace(/^(-)|[^0-9.,]+/g, '$1')),
+                sell_price: parseFloat(document.querySelector(config.sell_selector).textContent.replace(",", ".").replace(/^(-)|[^0-9.,]+/g, '$1'))
+            }
+        },{config});
+    })(config, browser)
+}
+
+async function fetchRates(provider: Provider, browser): Promise<IQuotes> {
     let quotes: IQuotes = {buy_price: 0, sell_price: 0};
     let config;
-    let $;
-    let browser;
-
     switch (provider) {
         case Provider.DOLAR_HOY:
             config = ProviderConfig[Provider.DOLAR_HOY];
-            $ = await fetchHtml(config.url)
-            quotes.buy_price = $(config.buy_selector).text().replace('$', '');
-            quotes.sell_price = $(config.sell_selector).text().replace('$', '');
+            quotes = await scrapProvider(config, browser);
             break;
         case Provider.AMBITO:
             config = ProviderConfig[Provider.AMBITO];
-            browser = await puppeteer.launch();
-            quotes = await (async (config, browser) => {
-                const page = await browser.newPage();
-                await page.goto(config.url);
-                return await page.evaluate(() => {
-                    return {
-                        buy_price: document.querySelector("div[data-indice='/dolar/informal'] > .align-items-end > .first > .value").textContent,
-                        sell_price: document.querySelector("div[data-indice='/dolar/informal'] > .align-items-end > .first > .value").textContent
-                    }
-                });
-            })(config, browser);
-            await browser.close();
+            quotes = await scrapProvider(config, browser);
             break;
         case Provider.CRONISTA:
             break;
