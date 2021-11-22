@@ -8,7 +8,7 @@ const handler = nc<NextApiRequest, NextApiResponse>();
 const chromium = require('chrome-aws-lambda');
 
 handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
-    res.setHeader('Cache-Control', 'maxage=60');
+    res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate');
 
     let results: Results = {
         [Provider.DOLAR_HOY]: {buy_price: 0, sell_price: 0},
