@@ -10,7 +10,12 @@ interface IResultError {
 }
 
 const chromium = require('chrome-aws-lambda');
-
+function getLastSyncTime () {
+    const currentDate = new Date();
+    const minutes = `0${currentDate.getMinutes()}`;
+    const seconds = `0${currentDate.getSeconds()}`;
+    return `${currentDate.getHours()}:${minutes.slice(-2)}:${seconds.slice(-2)}`
+}
 
 handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
     res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate');
@@ -72,6 +77,7 @@ interface IProvider {
     url: string,
     buy_selector: string,
     sell_selector: string,
+    last_sync: string
 }
 
 interface IQuotes {
@@ -91,31 +97,36 @@ const ProviderConfig: ProviderConfig = {
     [Provider.AMBITO]: {
         url: 'https://www.ambito.com/contenidos/dolar.html',
         buy_selector: "div[data-indice='/dolar/informal'] > .align-items-end > .first > .value",
-        sell_selector: "div[data-indice='/dolar/informal'] > .align-items-end > .second > .value"
+        sell_selector: "div[data-indice='/dolar/informal'] > .align-items-end > .second > .value",
+        last_sync: ""
     },
     [Provider.DOLAR_HOY]: {
         url: "https://dolarhoy.com/",
         buy_selector: '.tile .is-parent .is-5 > .tile > .values > .compra > .val ',
         sell_selector: '.tile .is-parent .is-5 > .tile > .values > .venta > .val ',
+        last_sync: ""
+
     },
     [Provider.CRONISTA]: {
         url: "https://www.cronista.com/MercadosOnline/moneda.html?id=ARSB",
         buy_selector: "",
-        sell_selector: ""
+        sell_selector: "",
+        last_sync: ""
     }
 }
 
 async function scrapProvider(config, browser: Browser) {
-    return await (async (config, browser: Browser) => {
+    return await (async (config, browser: Browser, lastSync) => {
         const page = await browser.newPage();
         await page.goto(config.url);
-        return await page.evaluate(({config}) => {
+        return await page.evaluate(({config, lastSync}) => {
             return {
+                last_sync: lastSync,
                 buy_price: parseFloat(document.querySelector(config.buy_selector).textContent.replace(",", ".").replace(/^(-)|[^0-9.,]+/g, '$1')),
                 sell_price: parseFloat(document.querySelector(config.sell_selector).textContent.replace(",", ".").replace(/^(-)|[^0-9.,]+/g, '$1'))
             }
-        },{config});
-    })(config, browser)
+        },{config, lastSync});
+    })(config, browser, getLastSyncTime())
 }
 
 async function fetchRates(provider: Provider, browser): Promise<IQuotes> {
