@@ -14,7 +14,7 @@ const fetcher = async (url) => {
     return [data, getLastSyncTime()]
 }
 
-const baseUrl = "http://localhost:3000/api";
+const baseUrl = "/api";
 
 export const useGet = path => {
     if (!path) {
