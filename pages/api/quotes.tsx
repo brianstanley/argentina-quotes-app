@@ -9,12 +9,10 @@ interface IResultError {
     error: string
 }
 
-let chrome = {};
 let puppeteer;
 
 if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
     // running on the Vercel platform.
-    chrome = require('chrome-aws-lambda');
     puppeteer = require('puppeteer-core');
 } else {
     // running locally.
@@ -27,7 +25,21 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
         [Provider.CRONISTA]: {buy_price: 0, sell_price: 0},
         [Provider.AMBITO]: {buy_price: 0, sell_price: 0}
     };
-    const browser: Browser = await puppeteer.launch();
+    let browser;
+    if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
+        let chrome = require('chrome-aws-lambda');
+        browser = await puppeteer.launch(
+            {
+                args: [...chrome.args, '--hide-scrollbars', '--disable-web-security'],
+                defaultViewport: chrome.defaultViewport,
+                executablePath: await chrome.executablePath,
+                headless: true,
+                ignoreHTTPSErrors: true,
+            }
+        );
+    } else {
+        browser = await puppeteer.launch();
+    }
 
     try {
         results[Provider.DOLAR_HOY] = await fetchRates(Provider.DOLAR_HOY, browser);
