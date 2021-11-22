@@ -36,6 +36,12 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
         results[Provider.AMBITO] = {provider: Provider.AMBITO, error: e.error}
     }
 
+    try {
+        results[Provider.CRONISTA] = await fetchRates(Provider.CRONISTA, browser);
+    } catch (e) {
+        results[Provider.CRONISTA] = {provider: Provider.AMBITO, error: e.error}
+    }
+
     await browser.close();
 
     const responseData = [
@@ -48,9 +54,8 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
             source: process.env.DOLAR_HOY_SOURCE
         },
         {
-            "buy_price": 140.3,
-            "sell_price": 144,
-            "source": process.env.CRONISTA_SOURCE
+            ...results[Provider.CRONISTA],
+            source: process.env.CRONISTA_SOURCE
         }
     ];
     res.json(responseData);
@@ -70,8 +75,8 @@ const ProviderConfig: ProviderConfig = {
     },
     [Provider.CRONISTA]: {
         url: process.env.CRONISTA_SOURCE,
-        buy_selector: "",
-        sell_selector: "",
+        buy_selector: ".buy-value",
+        sell_selector: ".sell-value",
     }
 }
 
@@ -102,23 +107,8 @@ async function scrapProvider(config, browser: Browser) {
 }
 
 async function fetchRates(provider: Provider, browser): Promise<IQuotes> {
-    let quotes: IQuotes = {buy_price: 0, sell_price: 0};
-    let config;
-    switch (provider) {
-        case Provider.DOLAR_HOY:
-            config = ProviderConfig[Provider.DOLAR_HOY];
-            quotes = await scrapProvider(config, browser);
-            break;
-        case Provider.AMBITO:
-            config = ProviderConfig[Provider.AMBITO];
-            quotes = await scrapProvider(config, browser);
-            break;
-        case Provider.CRONISTA:
-            break;
-        default:
-            break;
-    }
-    return quotes;
+    const config = ProviderConfig[provider];
+    return await scrapProvider(config, browser);
 }
 
 export default handler;
