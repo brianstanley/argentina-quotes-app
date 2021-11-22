@@ -1,11 +1,14 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import nc from "next-connect";
 import {Browser} from "puppeteer";
+import {Provider} from "../../ts/enums";
+import {IQuotes} from "../../ts/interfaces";
+import {ProviderConfig, Results} from "../../ts/types";
 const handler = nc<NextApiRequest, NextApiResponse>();
 const chromium = require('chrome-aws-lambda');
 
 handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
-    res.setHeader('Cache-Control', 's-maxage=60');
+    res.setHeader('Cache-Control', 'maxage=60');
 
     let results: Results = {
         [Provider.DOLAR_HOY]: {buy_price: 0, sell_price: 0},
@@ -32,6 +35,7 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
     } catch (e) {
         results[Provider.AMBITO] = {provider: Provider.AMBITO, error: e.error}
     }
+
     await browser.close();
 
     const responseData = [
@@ -51,36 +55,6 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
     ];
     res.json(responseData);
 })
-
-enum Provider {
-    CRONISTA,
-    AMBITO,
-    DOLAR_HOY,
-}
-
-interface IProvider {
-    url: string,
-    buy_selector: string,
-    sell_selector: string,
-}
-
-interface IQuotes {
-    buy_price: number,
-    sell_price: number,
-}
-
-interface IResultError {
-    provider: Provider,
-    error: string
-}
-
-type Results = {
-    [key in Provider]: IQuotes | IResultError;
-};
-
-type ProviderConfig = {
-    [key in Provider]: IProvider;
-}
 
 const ProviderConfig: ProviderConfig = {
     [Provider.AMBITO]: {
