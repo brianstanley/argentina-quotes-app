@@ -32,22 +32,14 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
         }
     }
 
-    await browser.close();
-
-    const responseData = [
-        {
-            ...results[Provider.AMBITO],
-            source: process.env.AMBITO_SOURCE
-        },
-        {
-            ...results[Provider.DOLAR_HOY],
-            source: process.env.DOLAR_HOY_SOURCE
-        },
-        {
-            ...results[Provider.CRONISTA],
-            source: process.env.CRONISTA_SOURCE
+    const responseData = Object.keys(ProviderConfig).map((key) => {
+        return {
+            ...results[key],
+            source:  ProviderConfig[key].url
         }
-    ];
+    })
+
+    await browser.close();
     res.json(responseData);
 })
 
