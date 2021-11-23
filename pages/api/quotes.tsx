@@ -19,7 +19,7 @@ export async function fetchQuotes(): Promise<Quote[]> {
   const quotes = await QuotesSchema.find(
     {},
     { buy_price: 1, sell_price: 1, _id: 0, updatedAt: 1 }
-  ).populate('provider', 'name')
+  ).populate('provider', 'name', 'Provider')
   const results: Quote[] = quotes.map((quote) => {
     return {
       buy_price: quote.buy_price,
