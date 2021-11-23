@@ -12,6 +12,12 @@ export interface IQuotes {
 }
 
 export interface IResultError {
-    provider: Provider,
-    error: string
+    source: Provider,
+    error: boolean
+}
+
+export interface IAverageResponse {
+    average_buy_price: number;
+    average_sell_price: number;
+    last_sync: string;
 }

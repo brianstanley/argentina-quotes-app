@@ -5,6 +5,7 @@ export type Quote = {
     buy_price: number;
     sell_price: number;
     source: Provider;
+    last_sync: string;
 };
 
 export type ProviderConfig = {

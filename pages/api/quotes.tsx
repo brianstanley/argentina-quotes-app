@@ -4,6 +4,7 @@ import {Browser} from "puppeteer";
 import {Provider} from "../../ts/enums";
 import {Quote} from "../../ts/types";
 import {providerConfig} from "../../configs";
+import {IResultError} from "../../ts/interfaces";
 const handler = nc<NextApiRequest, NextApiResponse>();
 const chromium = require('chrome-aws-lambda');
 
@@ -14,10 +15,10 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
 })
 
 export async function getQuotes(): Promise<Quote[]> {
-    let results: Quote[] = [
-        {buy_price: 0, sell_price: 0, source: Provider.DOLAR_HOY},
-        {buy_price: 0, sell_price: 0, source: Provider.CRONISTA},
-        {buy_price: 0, sell_price: 0, source: Provider.AMBITO}
+    let results: Quote[] | IResultError = [
+        {buy_price: 0, sell_price: 0, source: Provider.DOLAR_HOY, last_sync: ''},
+        {buy_price: 0, sell_price: 0, source: Provider.CRONISTA, last_sync: ''},
+        {buy_price: 0, sell_price: 0, source: Provider.AMBITO, last_sync: ''}
     ];
 
     const browser: Browser = await chromium.puppeteer.launch({
@@ -61,6 +62,7 @@ async function scrapProvider(config, browser: Browser) {
             const buyPriceNode = document.querySelector(config.buy_selector);
             const sellPriceNode = document.querySelector(config.sell_selector);
             return {
+                last_sync: new Date().toISOString().slice(0,19),
                 buy_price: parseFloat(buyPriceNode.textContent.replace(",", ".").replace(/^(-)|[^0-9.,]+/g, '$1')),
                 sell_price: parseFloat(sellPriceNode.textContent.replace(",", ".").replace(/^(-)|[^0-9.,]+/g, '$1'))
             }
