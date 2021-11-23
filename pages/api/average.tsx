@@ -2,7 +2,6 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import {getQuotes} from "./quotes";
 import {Quote} from "../../ts/types";
 import {IAverageResponse} from "../../ts/interfaces";
-import {providerConfig} from "../../configs";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
     res.setHeader('Cache-Control', process.env.CACHE_CONTROL);
