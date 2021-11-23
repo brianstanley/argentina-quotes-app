@@ -2,9 +2,8 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import nc from "next-connect";
 import {Browser} from "puppeteer";
 import {Provider} from "../../ts/enums";
-import {Quote} from "../../ts/types";
+import {Quote, ResultScrapError} from "../../ts/types";
 import {providerConfig} from "../../configs";
-import {IResultError} from "../../ts/interfaces";
 const handler = nc<NextApiRequest, NextApiResponse>();
 const chromium = require('chrome-aws-lambda');
 
@@ -15,7 +14,7 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
 })
 
 export async function getQuotes(): Promise<Quote[]> {
-    let results: Quote[] | IResultError = [
+    let results: Quote[] | ResultScrapError = [
         {buy_price: 0, sell_price: 0, source: Provider.DOLAR_HOY, last_sync: ''},
         {buy_price: 0, sell_price: 0, source: Provider.CRONISTA, last_sync: ''},
         {buy_price: 0, sell_price: 0, source: Provider.AMBITO, last_sync: ''}

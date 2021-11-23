@@ -1,7 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import {getQuotes} from "./quotes";
-import {Quote} from "../../ts/types";
-import {IAverageResponse} from "../../ts/interfaces";
+import {AverageResponse, Quote} from "../../ts/types";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
     res.setHeader('Cache-Control', process.env.CACHE_CONTROL);
@@ -10,7 +9,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     const sellPrice: number = getAveragePrice(quotes, 'sell_price')
     const buyPrice: number =  getAveragePrice(quotes,'buy_price');
 
-    const responseData: IAverageResponse = {
+    const responseData: AverageResponse = {
         "average_buy_price": parseFloat(sellPrice.toFixed(2)),
         "average_sell_price": parseFloat(buyPrice.toFixed(2)),
         "last_sync": new Date().toISOString().slice(0,19)

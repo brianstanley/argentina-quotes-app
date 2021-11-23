@@ -11,3 +11,14 @@ export type Quote = {
 export type ProviderConfig = {
     [key in Provider]: IProvider;
 }
+
+export type ResultScrapError = {
+    source: Provider;
+    error: boolean;
+}
+
+export type AverageResponse = {
+    average_buy_price: number;
+    average_sell_price: number;
+    last_sync: string;
+}
