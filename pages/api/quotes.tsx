@@ -11,7 +11,7 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
     const results: Quote[] = await fetchQuotes()
     res.json(results)
   } catch (e) {
-    res.status(400).json({ success: false })
+    res.status(400).json({ success: false, error: e.message })
   }
 })
 
