@@ -1,8 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
+import dbConnect from '../../lib/dbConnect'
 import nc from 'next-connect'
 import { Quote } from '../../ts/types'
-import dbConnect from '../../lib/dbConnect'
 import QuotesSchema from '../../models/QuotesSchema'
+require('../../models/ProviderSchema')
+
 const handler = nc<NextApiRequest, NextApiResponse>()
 
 handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
