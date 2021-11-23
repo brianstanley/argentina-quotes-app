@@ -20,11 +20,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 }
 
 function getAveragePrice(quotes, key): number {
-    let providersSucceedLength = Object.keys(providerConfig).length;
-    return quotes.reduce((acc, obj) => {
-        if (obj[key]) {
-            return acc + obj[key]
-        }
-        providersSucceedLength--;
-    }, 0) / providersSucceedLength;
+    quotes = quotes.filter(quote => !!quote[key]);
+    return quotes.reduce((acc, obj) => acc + obj[key], 0) / quotes.length;
 }
