@@ -1,0 +1,13 @@
+name: update-quotes
+on:
+  schedule:
+    - cron: '*/1 * * * *'
+jobs:
+  cron:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call updateRates API
+        run: |
+          curl --request POST \
+          --url 'https://pluggy-challenge.vercel.app/api/updateRates' \
+          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
