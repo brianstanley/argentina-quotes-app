@@ -20,5 +20,4 @@ export type ResultScrapError = {
 export type AverageResponse = {
   average_buy_price: number
   average_sell_price: number
-  last_sync: string
 }

@@ -1,12 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { getQuotes } from './quotes'
 import { AverageResponse, Quote } from '../../ts/types'
 import nc from 'next-connect'
+import { fetchQuotes } from './quotes'
 const handler = nc<NextApiRequest, NextApiResponse>()
 
 handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
-  res.setHeader('Cache-Control', process.env.CACHE_CONTROL)
-  const quotes: Quote[] = await getQuotes()
+  const quotes: Quote[] = await fetchQuotes()
 
   const sellPrice: number = getAveragePrice(quotes, 'sell_price')
   const buyPrice: number = getAveragePrice(quotes, 'buy_price')
@@ -14,7 +13,6 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
   const responseData: AverageResponse = {
     average_buy_price: parseFloat(sellPrice.toFixed(2)),
     average_sell_price: parseFloat(buyPrice.toFixed(2)),
-    last_sync: new Date().toISOString().slice(0, 19),
   }
   res.status(200).json(responseData)
 })
