@@ -6,7 +6,6 @@ const handler = nc<NextApiRequest, NextApiResponse>()
 
 handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
   const quotes: Quote[] = await fetchQuotes()
-
   const sellPrice: number = getAveragePrice(quotes, 'sell_price')
   const buyPrice: number = getAveragePrice(quotes, 'buy_price')
 

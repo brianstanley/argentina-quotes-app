@@ -8,7 +8,6 @@ require('../../models/ProviderSchema')
 const handler = nc<NextApiRequest, NextApiResponse>()
 
 handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
-  await dbConnect()
   try {
     const results: Quote[] = await fetchQuotes()
     res.json(results)
@@ -18,6 +17,7 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
 })
 
 export async function fetchQuotes(): Promise<Quote[]> {
+  await dbConnect()
   const quotes = await QuotesSchema.find(
     {},
     { buy_price: 1, sell_price: 1, _id: 0, updatedAt: 1 }
