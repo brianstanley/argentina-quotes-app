@@ -1,8 +1,10 @@
-import {IProvider, IQuotes, IResultError} from "../interfaces";
+import {IProvider} from "../interfaces";
 import {Provider} from "../enums";
 
-export type Results = {
-    [key in Provider]: IQuotes | IResultError;
+export type Quote = {
+    buy_price: number;
+    sell_price: number;
+    source: Provider;
 };
 
 export type ProviderConfig = {

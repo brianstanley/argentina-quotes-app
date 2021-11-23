@@ -2,30 +2,23 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import nc from "next-connect";
 import {Browser} from "puppeteer";
 import {Provider} from "../../ts/enums";
-import {Results} from "../../ts/types";
+import {Quote} from "../../ts/types";
 import {providerConfig} from "../../configs";
 const handler = nc<NextApiRequest, NextApiResponse>();
 const chromium = require('chrome-aws-lambda');
 
 handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
     res.setHeader('Cache-Control', process.env.CACHE_CONTROL);
-    const results: Results = await getQuotes();
-    const responseData = Object.keys(providerConfig).map((key) => {
-        return {
-            ...results[key],
-            source:  providerConfig[key].url
-        }
-    })
-
-    res.json(responseData);
+    const results: Quote[] = await getQuotes();
+    res.json(results);
 })
 
-export async function getQuotes() {
-    let results: Results = {
-        [Provider.DOLAR_HOY]: {buy_price: 0, sell_price: 0},
-        [Provider.CRONISTA]: {buy_price: 0, sell_price: 0},
-        [Provider.AMBITO]: {buy_price: 0, sell_price: 0}
-    };
+export async function getQuotes(): Promise<Quote[]> {
+    let results: Quote[] = [
+        {buy_price: 0, sell_price: 0, source: Provider.DOLAR_HOY},
+        {buy_price: 0, sell_price: 0, source: Provider.CRONISTA},
+        {buy_price: 0, sell_price: 0, source: Provider.AMBITO}
+    ];
 
     const browser: Browser = await chromium.puppeteer.launch({
         args: chromium.args,
@@ -35,12 +28,13 @@ export async function getQuotes() {
         ignoreHTTPSErrors: true,
     });
 
-    for (const providerKey of Object.keys(results)) {
+    for (const [key, quote] of Object.entries(results)) {
+        const config = providerConfig[quote.source];
         try {
-            const config = providerConfig[providerKey];
-            results[providerKey] = await scrapProvider(config, browser);
+            results[key] = await scrapProvider(config, browser);
+            results[key].source = config.url;
         } catch (e) {
-            results[providerKey] = {error: true, source: Provider[providerKey].url}
+            results[key] = {error: true, source: config.url}
         }
     }
     await browser.close();
@@ -67,7 +61,6 @@ async function scrapProvider(config, browser: Browser) {
             const buyPriceNode = document.querySelector(config.buy_selector);
             const sellPriceNode = document.querySelector(config.sell_selector);
             return {
-                last_sync: lastSync,
                 buy_price: parseFloat(buyPriceNode.textContent.replace(",", ".").replace(/^(-)|[^0-9.,]+/g, '$1')),
                 sell_price: parseFloat(sellPriceNode.textContent.replace(",", ".").replace(/^(-)|[^0-9.,]+/g, '$1'))
             }
