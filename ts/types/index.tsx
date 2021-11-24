@@ -23,3 +23,9 @@ export type AverageQuotes = {
 }
 
 export type Cache = ICache | null
+
+export type Slippage = {
+  buy_price_slippage: number
+  sell_price_slippage: number
+  source: Provider
+}

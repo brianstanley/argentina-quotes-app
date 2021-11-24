@@ -6,15 +6,15 @@ const handler = nc<NextApiRequest, NextApiResponse>()
 
 handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
   try {
-    const average: AverageQuotes = await getAverage()
+    const quotes: Quote[] = await fetchQuotes()
+    const average: AverageQuotes = getAverage(quotes)
     res.status(200).json(average)
   } catch (e) {
     res.status(400).json({ success: false })
   }
 })
 
-async function getAverage(): Promise<AverageQuotes> {
-  const quotes: Quote[] = await fetchQuotes()
+export function getAverage(quotes: Quote[]): AverageQuotes {
   const sellPrice: number = getAveragePrice(quotes, 'sell_price')
   const buyPrice: number = getAveragePrice(quotes, 'buy_price')
 
@@ -24,7 +24,7 @@ async function getAverage(): Promise<AverageQuotes> {
   }
 }
 
-function getAveragePrice(quotes, key): number {
+function getAveragePrice(quotes: Quote[], key: string): number {
   quotes = quotes.filter((quote) => !!quote[key])
   const average = quotes.reduce((acc, obj) => acc + obj[key], 0) / quotes.length
   return parseFloat(average.toFixed(2))
