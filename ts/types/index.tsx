@@ -1,6 +1,5 @@
-import { IProvider } from '../interfaces'
+import { ICache, IProvider } from '../interfaces'
 import { Provider } from '../enums'
-import { ICache } from '../../models/CacheSchema'
 
 export type Quote = {
   buy_price: number

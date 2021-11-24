@@ -21,13 +21,11 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
   }
 })
 
-export async function fetchQuotes() {
+export async function fetchQuotes(): Promise<Quote[]> {
   await dbConnect()
-  let cache: Cache = await getCache()
+  const cache: Cache = await getCache()
   if (cache && cache.expire && cache.expire >= new Date().getTime()) {
-    let result = cache.result
-    let parsed: Quote[] = JSON.parse(result)
-    return parsed
+    return JSON.parse(cache.result)
   }
   const quotes = await getQuotes()
   await saveInCache(quotes, cache)

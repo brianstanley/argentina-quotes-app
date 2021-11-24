@@ -1,9 +1,5 @@
 import mongoose from 'mongoose'
-
-export interface ICache {
-  result: string
-  expire: number
-}
+import { ICache } from '../ts/interfaces'
 
 const CacheSchema = new mongoose.Schema<ICache>({
   result: {
