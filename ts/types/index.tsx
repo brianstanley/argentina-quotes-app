@@ -17,7 +17,7 @@ export type ResultScrapError = {
   error: boolean
 }
 
-export type AverageResponse = {
+export type AverageQuotes = {
   average_buy_price: number
   average_sell_price: number
 }

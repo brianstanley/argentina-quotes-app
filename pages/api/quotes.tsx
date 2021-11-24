@@ -17,7 +17,7 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
     res.json(results)
     res.status(200)
   } catch (e) {
-    res.status(400).json({ success: false, error: e.message })
+    res.status(400).json({ success: false })
   }
 })
 
