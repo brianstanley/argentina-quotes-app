@@ -1,5 +1,6 @@
 import { IProvider } from '../interfaces'
 import { Provider } from '../enums'
+import { ICache } from '../../models/CacheSchema'
 
 export type Quote = {
   buy_price: number
@@ -21,3 +22,5 @@ export type AverageResponse = {
   average_buy_price: number
   average_sell_price: number
 }
+
+export type Cache = ICache | null
