@@ -1,6 +1,6 @@
 {
   "functions": {
-    "api/quotes.tsx": {
+    "api/*.js": {
       "memory": 3008,
       "maxDuration": 60
     }
