@@ -5,8 +5,8 @@ import { Quote, ResultScrapError } from '../../ts/types'
 import { getCache, saveInCache } from '../../utils/cache'
 import { Cache } from '../../ts/types'
 import { Provider } from '../../ts/enums'
-import { Browser } from 'puppeteer'
 import { providerConfig } from '../../configs'
+import { Browser } from 'puppeteer-core'
 const chromium = require('chrome-aws-lambda')
 
 const handler = nc<NextApiRequest, NextApiResponse>()
@@ -17,7 +17,7 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
     res.json(results)
     res.status(200)
   } catch (e) {
-    res.status(400).json({ success: false })
+    res.status(400).json({ success: false, error: e.message })
   }
 })
 
@@ -38,14 +38,17 @@ export async function getQuotes(): Promise<Quote[]> {
     { buy_price: 0, sell_price: 0, source: Provider.CRONISTA, last_sync: '' },
     { buy_price: 0, sell_price: 0, source: Provider.AMBITO, last_sync: '' },
   ]
-
-  const browser: Browser = await chromium.puppeteer.launch({
-    args: chromium.args,
-    defaultViewport: chromium.defaultViewport,
+  const browser = await chromium.puppeteer.launch({
     executablePath: await chromium.executablePath,
-    headless: true,
-    ignoreHTTPSErrors: true,
+    args: chromium.args,
   })
+  // const browser: Browser = await chromium.puppeteer.launch({
+  //   args: chromium.args,
+  //   defaultViewport: chromium.defaultViewport,
+  //   executablePath: await chromium.executablePath,
+  //   headless: true,
+  //   ignoreHTTPSErrors: true,
+  // })
 
   for (const [key, quote] of Object.entries(results)) {
     const config = providerConfig[quote.source]
