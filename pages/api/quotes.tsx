@@ -1,9 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import dbConnect from '../../lib/dbConnect'
 import nc from 'next-connect'
-import { Quote } from '../../ts/types'
-import QuotesSchema from '../../models/QuotesSchema'
-require('../../models/ProviderSchema')
+import { Quote, ResultScrapError } from '../../ts/types'
+import { getCache, saveInCache } from '../../lib/cache'
+import { Cache } from '../../ts/types'
+import { Provider } from '../../ts/enums'
+import { Browser } from 'puppeteer'
+import { providerConfig } from '../../configs'
+const chromium = require('chrome-aws-lambda')
 
 const handler = nc<NextApiRequest, NextApiResponse>()
 
@@ -11,6 +15,7 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const results: Quote[] = await fetchQuotes()
     res.json(results)
+    res.status(200)
   } catch (e) {
     res.status(400).json({ success: false, error: e.message })
   }
@@ -18,19 +23,83 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
 
 export async function fetchQuotes(): Promise<Quote[]> {
   await dbConnect()
-  const quotes = await QuotesSchema.find(
-    {},
-    { buy_price: 1, sell_price: 1, _id: 0, updatedAt: 1 }
-  ).populate('provider', 'name', 'Provider')
-  const results: Quote[] = quotes.map((quote) => {
-    return {
-      buy_price: quote.buy_price,
-      sell_price: quote.sell_price,
-      source: quote.provider.name,
-      last_sync: quote.updatedAt,
-    }
+  const cache: Cache = await getCache()
+  if (cache && cache.expire && cache.expire >= new Date().getTime()) {
+    return JSON.parse(cache.result)
+  }
+  const quotes = await getQuotes()
+  await saveInCache(quotes, cache)
+  return quotes
+}
+
+export async function getQuotes(): Promise<Quote[]> {
+  let results: Quote[] | ResultScrapError = [
+    { buy_price: 0, sell_price: 0, source: Provider.DOLAR_HOY, last_sync: '' },
+    { buy_price: 0, sell_price: 0, source: Provider.CRONISTA, last_sync: '' },
+    { buy_price: 0, sell_price: 0, source: Provider.AMBITO, last_sync: '' },
+  ]
+
+  const browser: Browser = await chromium.puppeteer.launch({
+    args: chromium.args,
+    defaultViewport: chromium.defaultViewport,
+    executablePath: await chromium.executablePath,
+    headless: true,
+    ignoreHTTPSErrors: true,
   })
+
+  for (const [key, quote] of Object.entries(results)) {
+    const config = providerConfig[quote.source]
+    try {
+      results[key] = await scrapProvider(config, browser)
+    } catch (e) {
+      results[key] = { error: true, source: config.url }
+    }
+  }
+  await browser.close()
   return results
+}
+
+async function scrapProvider(config, browser: Browser) {
+  return await (async (config, browser: Browser) => {
+    const page = await browser.newPage()
+    await page.setRequestInterception(true)
+    page.on('request', (req) => {
+      if (
+        req.resourceType() == 'stylesheet' ||
+        req.resourceType() == 'font' ||
+        req.resourceType() == 'image'
+      ) {
+        req.abort()
+      } else {
+        req.continue()
+      }
+    })
+
+    await page.goto(config.url)
+    await page.setRequestInterception(true)
+
+    return await page.evaluate(
+      ({ config, lastSync }) => {
+        const buyPriceNode = document.querySelector(config.buy_selector)
+        const sellPriceNode = document.querySelector(config.sell_selector)
+        return {
+          last_sync: new Date().toISOString().slice(0, 19),
+          buy_price: parseFloat(
+            buyPriceNode.textContent
+              .replace(',', '.')
+              .replace(/^(-)|[^0-9.,]+/g, '$1')
+          ),
+          sell_price: parseFloat(
+            sellPriceNode.textContent
+              .replace(',', '.')
+              .replace(/^(-)|[^0-9.,]+/g, '$1')
+          ),
+          source: config.url,
+        }
+      },
+      { config }
+    )
+  })(config, browser)
 }
 
 export default handler
