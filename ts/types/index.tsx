@@ -2,10 +2,11 @@ import { ICache, IProvider } from '../interfaces'
 import { Provider } from '../enums'
 
 export type Quote = {
-  buy_price: number
-  sell_price: number
+  buy_price?: number
+  sell_price?: number
+  last_sync?: string
+  error?: boolean
   source: Provider
-  last_sync: string
 }
 
 export type ProviderConfig = {

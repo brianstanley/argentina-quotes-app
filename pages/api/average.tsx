@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { AverageQuotes, Quote } from '../../ts/types'
 import nc from 'next-connect'
 import { fetchQuotes } from './quotes'
+import { getAveragePrice } from '../../utils/math'
 const handler = nc<NextApiRequest, NextApiResponse>()
 
 handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
@@ -24,9 +25,4 @@ export function getAverage(quotes: Quote[]): AverageQuotes {
   }
 }
 
-export function getAveragePrice(quotes: Quote[], key: string): number {
-  quotes = quotes.filter((quote) => !!quote[key])
-  const average = quotes.reduce((acc, obj) => acc + obj[key], 0) / quotes.length
-  return parseFloat(average.toFixed(2))
-}
 export default handler
