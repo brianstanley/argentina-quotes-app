@@ -6,6 +6,7 @@ export default function Home() {
         <a
           href="https://github.com/brianstanley"
           target="_blank"
+          rel="noreferrer"
           className="font-bold"
         >
           https://github.com/brianstanley
@@ -32,6 +33,7 @@ export default function Home() {
               <a
                 href="https://github.com/pluggyai/full-stack-engineer-assignment"
                 target="_blank"
+                rel="noreferrer"
                 className="underline"
               >
                 https://github.com/pluggyai/full-stack-engineer-assignment
