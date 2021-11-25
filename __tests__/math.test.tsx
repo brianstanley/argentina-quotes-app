@@ -1,7 +1,6 @@
 import { Quote } from '../ts/types'
 import { Provider } from '../ts/enums'
 import { calcSlippage, getAveragePrice } from '../utils/math'
-import { fetchQuotes } from '../pages/api/quotes'
 
 test('Test average between 3 quotes 1', () => {
   const quotes: Quote[] = [
