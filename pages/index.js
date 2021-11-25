@@ -21,8 +21,8 @@ export default function Home() {
           />
           <h1 className="text-indigo-500 text-4xl my-4  ">Brian Stanley</h1>
           <p className=" text-justify px-8 mb-8  ">
-            Hi everyone! I am SSR software developer skilled at frontend and
-            backend solutions. Experience designing, developing, and
+            Hi everyone! I am a SSR software developer skilled at frontend and
+            backend solutions. I have experience designing, developing, and
             implementing applications and solutions.
           </p>
         </div>
@@ -43,14 +43,15 @@ export default function Home() {
           <div className="flex flex-col bg-white rounded p-4 items-center shadow-lg border-r-8 border-green-200">
             <h2 className="font-bold">About</h2>
             <p className="p-4 text-gray-600">
-              I built this challenge Using NextJS + React. I deployed to Vercel
+              I built this challenge using NextJS + React. I deployed to Vercel
               in order to serve the API endpoints as Serverless Functions. Hope
-              you enjoy it!.
+              you enjoy it!
             </p>
             <div className="sm:block md:flex justify-between ">
               <div className="pill bg-gray-400 rounded-full text-xs px-4 py-1 mr-2">
                 #NextJS
               </div>
+              l
               <div className="pill bg-gray-400 rounded-full text-xs px-4 py-1 mr-2">
                 #React
               </div>
