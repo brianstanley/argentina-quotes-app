@@ -1,4 +1,4 @@
-import useSWR from 'swr'
+import useSWR, { useSWRConfig } from 'swr'
 
 const getLastSyncTime = () => {
   const currentDate = new Date()
