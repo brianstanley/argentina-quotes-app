@@ -40,11 +40,7 @@ const EndpointResultViewer = ({ path }) => {
         </div>
         <div className="p-6 bg-white border-gray-200 text-right">
           <button
-            disabled={isValidating}
-            className={
-              'bg-blue-500 shadow-md text-sm text-white font-bold py-3 md:px-8 px-4 hover:bg-blue-400 rounded uppercase' +
-              (isValidating ? ' opacity-25' : '')
-            }
+            className="bg-blue-500 shadow-md text-sm text-white font-bold py-3 md:px-8 px-4 hover:bg-blue-400 rounded uppercase"
             onClick={() => {
               mutate()
             }}
