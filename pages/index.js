@@ -29,7 +29,7 @@ export default function Home() {
         <div className="flex flex-col justify-between mx-8 md:mx-0 md:w-1/4 ">
           <div className="flex flex-col bg-white rounded p-4 items-center shadow-lg border-r-8 border-green-200 mb-4 md:mb-auto">
             <h2 className="font-bold   ">Pluggy.AI Challenge</h2>
-            <p className="p-4  text-gray-600">
+            <p className="p-4 break-words  text-gray-600">
               <a
                 href="https://github.com/pluggyai/full-stack-engineer-assignment"
                 target="_blank"
@@ -47,12 +47,9 @@ export default function Home() {
               in order to serve the API endpoints as Serverless Functions. Hope
               you enjoy it!.
             </p>
-            <div className="flex justify-between ">
+            <div className="sm:block md:flex justify-between ">
               <div className="pill bg-gray-400 rounded-full text-xs px-4 py-1 mr-2">
                 #NextJS
-              </div>
-              <div className="pill bg-gray-400 rounded-full text-xs px-4 py-1 mr-2">
-                #TailwindCSS
               </div>
               <div className="pill bg-gray-400 rounded-full text-xs px-4 py-1 mr-2">
                 #React
