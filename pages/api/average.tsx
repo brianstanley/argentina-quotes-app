@@ -24,7 +24,7 @@ export function getAverage(quotes: Quote[]): AverageQuotes {
   }
 }
 
-function getAveragePrice(quotes: Quote[], key: string): number {
+export function getAveragePrice(quotes: Quote[], key: string): number {
   quotes = quotes.filter((quote) => !!quote[key])
   const average = quotes.reduce((acc, obj) => acc + obj[key], 0) / quotes.length
   return parseFloat(average.toFixed(2))
