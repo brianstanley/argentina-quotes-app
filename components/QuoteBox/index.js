@@ -1,9 +1,6 @@
-const QuoteBox = ({ index, value, time }) => {
+const QuoteBox = ({ value, time }) => {
   return (
-    <div
-      key={index}
-      className="flex flex-col justify-center px-4 py-4 bg-white border border-gray-300 rounded"
-    >
+    <div className="flex flex-col justify-center px-4 py-4 bg-white border border-gray-300 rounded">
       <div>
         <div className="d-flex flex-row align-items-center justify-content-between w-100 mb-3 mb-md-5">
           <div className="title-wrapper mr-2">

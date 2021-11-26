@@ -22,8 +22,9 @@ export default function Quotes() {
   const items = []
 
   if (data) {
-    for (const [index, value] of data[0].entries()) {
-      items.push(<QuoteBox index={index} value={value} time={data[1]} />)
+    const filtered = data[0].filter((quote) => !!quote.quote)
+    for (const [index, value] of filtered.entries()) {
+      items.push(<QuoteBox key={index} value={value} time={data[1]} />)
     }
   }
 
@@ -33,12 +34,14 @@ export default function Quotes() {
         {items}
         {average && average.data && (
           <AverageBox
+            key="buy"
             price={average.data[0].average_buy_price}
             title="Average buy price"
           />
         )}
         {average && average.data && (
           <AverageBox
+            key="sell"
             price={average.data[0].average_sell_price}
             title="Average sell price"
           />
