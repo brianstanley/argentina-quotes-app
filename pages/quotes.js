@@ -15,6 +15,8 @@ export default function Quotes() {
       <section className=" pb-32 text-gray-700">
         <div className="sm:grid sm:h-32 sm:grid-flow-row sm:gap-4 sm:grid-cols-3">
           {boxes}
+          <QuoteBoxPlaceholder key="buy_price" />
+          <QuoteBoxPlaceholder key="sell_price" />
         </div>
       </section>
     )
@@ -22,7 +24,7 @@ export default function Quotes() {
   const items = []
 
   if (data) {
-    const filtered = data[0].filter((quote) => !!quote.quote)
+    const filtered = data[0].filter((quote) => !quote.quote.error)
     for (const [index, value] of filtered.entries()) {
       items.push(<QuoteBox key={index} value={value} time={data[1]} />)
     }
@@ -32,6 +34,8 @@ export default function Quotes() {
     <section className=" pb-32 text-gray-700">
       <div className="sm:grid sm:h-32 sm:grid-flow-row sm:gap-4 sm:grid-cols-3">
         {items}
+        {!average.data && <QuoteBoxPlaceholder key="sell_price" />}
+        {!average.data && <QuoteBoxPlaceholder key="buy_price" />}
         {average && average.data && (
           <AverageBox
             key="buy"
