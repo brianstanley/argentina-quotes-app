@@ -25,6 +25,27 @@ const Sidebar = () => {
         </Link>
       </li>
       <li>
+        <Link href="/quotes">
+          <a className="flex items-center text-sm font-semibold text-gray-500 hover:text-indigo-600 transition duration-200">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6 mr-4 text-gray-400 hover:text-indigo-600 transition duration-200"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
+            </svg>
+            Quotes
+          </a>
+        </Link>
+      </li>
+      <li>
         <Link href="/endpoints">
           <a className="flex items-center text-sm font-semibold text-gray-500 hover:text-indigo-600 transition duration-200">
             <svg

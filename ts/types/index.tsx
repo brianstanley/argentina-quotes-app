@@ -6,7 +6,8 @@ export type Quote = {
   sell_price?: number
   last_sync?: string
   error?: boolean
-  source: Provider
+  source: string
+  source_name: Provider
 }
 
 export type ProviderConfig = {
@@ -28,5 +29,5 @@ export type Cache = ICache | null
 export type Slippage = {
   buy_price_slippage: number
   sell_price_slippage: number
-  source: Provider
+  quote: Quote
 }

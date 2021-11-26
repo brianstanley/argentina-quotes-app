@@ -34,9 +34,27 @@ export async function fetchQuotes(): Promise<Quote[]> {
 
 export async function getQuotes(): Promise<Quote[]> {
   let results: Quote[] | ResultScrapError = [
-    { buy_price: 0, sell_price: 0, source: Provider.DOLAR_HOY, last_sync: '' },
-    { buy_price: 0, sell_price: 0, source: Provider.CRONISTA, last_sync: '' },
-    { buy_price: 0, sell_price: 0, source: Provider.AMBITO, last_sync: '' },
+    {
+      buy_price: 0,
+      sell_price: 0,
+      source_name: Provider.DOLAR_HOY,
+      source: '',
+      last_sync: '',
+    },
+    {
+      buy_price: 0,
+      sell_price: 0,
+      source_name: Provider.CRONISTA,
+      source: '',
+      last_sync: '',
+    },
+    {
+      buy_price: 0,
+      sell_price: 0,
+      source_name: Provider.AMBITO,
+      source: '',
+      last_sync: '',
+    },
   ]
   const browser = await chromium.puppeteer.launch({
     executablePath: await chromium.executablePath,
@@ -46,7 +64,7 @@ export async function getQuotes(): Promise<Quote[]> {
   })
 
   for (const [key, quote] of Object.entries(results)) {
-    const config = providerConfig[quote.source]
+    const config = providerConfig[quote.source_name]
     try {
       results[key] = await scrapProvider(config, browser)
     } catch (e) {
@@ -75,7 +93,6 @@ async function scrapProvider(config, browser: Browser) {
 
     await page.goto(config.url)
     await page.setRequestInterception(true)
-
     return await page.evaluate(
       ({ config, lastSync }) => {
         const buyPriceNode = document.querySelector(config.buy_selector)
@@ -93,6 +110,7 @@ async function scrapProvider(config, browser: Browser) {
               .replace(/^(-)|[^0-9.,]+/g, '$1')
           ),
           source: config.url,
+          source_name: config.name,
         }
       },
       { config }

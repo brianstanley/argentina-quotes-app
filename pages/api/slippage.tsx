@@ -20,7 +20,7 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
           quote.sell_price,
           average.average_sell_price
         ),
-        source: quote.source,
+        quote,
       }
     })
     res.status(200).json(slippage)
