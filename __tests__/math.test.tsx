@@ -9,18 +9,21 @@ test('Test average between 3 quotes 1', () => {
       sell_price: 144,
       source: Provider.AMBITO,
       last_sync: '',
+      source_name: '',
     },
     {
       buy_price: 130,
       sell_price: 144,
       source: Provider.CRONISTA,
       last_sync: '',
+      source_name: '',
     },
     {
       buy_price: 133,
       sell_price: 146,
       source: Provider.DOLAR_HOY,
       last_sync: '',
+      source_name: '',
     },
   ]
   const expectedAverageBuy = 131.67
